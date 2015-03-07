@@ -82,10 +82,12 @@
 			marker.setMap(map);
 
 			// Open info window on click of marker
+			console.log("About to add listener");
 			google.maps.event.addListener(marker, 'click', function() {
 				infowindow.setContent(marker.title);
 				infowindow.open(map, marker);
 			});
+			console.log("Added listener");
 		}
 
 		function postPosition()
