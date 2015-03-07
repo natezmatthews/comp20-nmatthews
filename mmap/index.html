@@ -116,9 +116,9 @@
 					marker.setMap(map);
 
 					google.maps.event.addListener(marker, 'click', function() {
-						console.log(marker.title);	
+						console.log(person['login']);	
 						infowindow.close();
-						infowindow.setContent(marker.title);
+						infowindow.setContent(person['login']);
 						infowindow.open(map, marker);
 					});
 				}
