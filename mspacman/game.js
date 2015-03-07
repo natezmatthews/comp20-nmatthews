@@ -8,4 +8,4 @@ function init() {
         ctx.drawImage(img, 83, 23, 13, 14, 37, 31, 13, 14);
     }, false);
     img.src = 'pacman10-hp-sprite.png'; // Set source path
-}
+}w
