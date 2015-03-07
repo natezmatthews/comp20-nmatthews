@@ -82,14 +82,14 @@
 			marker.setMap(map);
 
 			// Open info window on click of marker
-			console.log("About to add listener");
-			google.maps.event.addListener(marker, 'click', function() {
-				console.log("Registered click");
-				infowindow.close();	
-				infowindow.setContent(marker.title);
-				infowindow.open(map, marker);
-			});
-			console.log("Added listener");
+			// console.log("About to add listener");
+			// google.maps.event.addListener(marker, 'click', function() {
+			// 	console.log("Registered click");
+			// 	infowindow.close();	
+			// 	infowindow.setContent(marker.title);
+			// 	infowindow.open(map, marker);
+			// });
+			// console.log("Added listener");
 		}
 
 		function postPosition()
@@ -115,12 +115,12 @@
 					});
 					marker.setMap(map);
 
-					google.maps.event.addListener(marker, 'click', function() {
-						console.log("Registered click");	
-						infowindow.close();
-						infowindow.setContent(marker.title);
-						infowindow.open(map, marker);
-					});
+					// google.maps.event.addListener(marker, 'click', function() {
+					// 	console.log("Registered click");	
+					// 	infowindow.close();
+					// 	infowindow.setContent(marker.title);
+					// 	infowindow.open(map, marker);
+					// });
 				}
 			}
 			else if (request.readyState == 4 && request.status == 304){
