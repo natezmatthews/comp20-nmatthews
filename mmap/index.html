@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+	<title>Marauder's Map</title>
+	<script src="http://maps.google.com/maps/api/js?sensor=true"></script>
+	<script>
+		var myLat = 0;
+		var myLng = 0;
+		var request;
+		try {
+		  request = new XMLHttpRequest();
+		}
+		catch (ms1) { // yes, exception handling is supported in JavaScript
+		  try {
+		    request = new ActiveXObject("Msxml2.XMLHTTP");
+		  }
+		  catch (ms2) {
+		    try {
+		      request = new ActiveXObject("Microsoft.XMLHTTP");
+		    }
+		    catch (ex) {
+		      request = null;
+		    }
+		  }
+		}
+		if (request == null) {
+		  alert("Error creating request object --Ajax not supported?");
+		}
+		var me = new google.maps.LatLng(myLat, myLng);
+		var myOptions = {
+					zoom: 13,
+					center: me,
+					mapTypeId: google.maps.MapTypeId.ROADMAP
+				};
+		var map;
+		var marker;
+		var infowindow = new google.maps.InfoWindow();
+		var places;
+		
+		function init()
+		{
+			map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+			console.log("Call before getMyLocation()");
+			getMyLocation();
+			console.log("Call after getMyLocation()");
+		}
+		
+		function getMyLocation() {
+			console.log("In getMyLocation()");
+			if (navigator.geolocation) { // the navigator.geolocation object is supported on your browser
+				navigator.geolocation.getCurrentPosition(function(position) {
+					myLat = position.coords.latitude;
+					myLng = position.coords.longitude;
+					renderMap();
+				});
+			}
+			else {
+				alert("Geolocation is not supported by your web browser.  What a shame!");
+			}
+			console.log("Leaving getMyLocation()");
+		}
+
+		function renderMap()
+		{
+			me = new google.maps.LatLng(myLat, myLng);
+			
+			// Update map and go there...
+			map.panTo(me);
+
+			// Create a marker
+			marker = new google.maps.Marker({
+				position: me,
+				title: "Here I Am!"
+			});
+			marker.setMap(map);
+		}
+	</script>
+	<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body onload="initialize()">
+	<div id="map_canvas" style="width:100%; height:100%"></div>
+</body>
+
+</html>
