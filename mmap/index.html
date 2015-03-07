@@ -86,7 +86,7 @@
 			google.maps.event.addListener(marker, 'click', function() {
 				console.log("Registered click");
 				infowindow.close();	
-				infowindow.setContent(marker.title);
+				infowindow.setContent(this.title);
 				infowindow.open(map, this);
 			});
 			console.log("Added listener");
@@ -117,7 +117,7 @@
 
 					google.maps.event.addListener(marker, 'click', function() {	
 						infowindow.close();
-						infowindow.setContent(marker.title);
+						infowindow.setContent(this.title);
 						infowindow.open(map, this);
 					});
 				}
