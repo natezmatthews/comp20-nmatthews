@@ -5,6 +5,8 @@ function parse(){
 	request.send();
 }
 
+/* Comment test */
+
 function parseData() {
 	if (request.readyState == 4 && request.status == 200) {
 		messagesDiv = document.getElementById("messages");
