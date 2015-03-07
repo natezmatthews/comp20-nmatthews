@@ -52,7 +52,7 @@
 			console.log("Call after getMyLocation()");
 		}
 		
-		function getMyLocation(var myLat, var myLng) {
+		function getMyLocation(myLat, myLng) {
 			console.log("In getMyLocation()");
 			if (navigator.geolocation) { // the navigator.geolocation object is supported on your browser
 				navigator.geolocation.getCurrentPosition(function(position) {
