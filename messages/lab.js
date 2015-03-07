@@ -17,6 +17,6 @@ function parseData() {
 		alert("No data changed, move along");
 	}
 	else if (request.readyState == 4 && request.status == 404){
-		alert("Error: Content not found"):
+		alert("Error: Content not found");
 	}
 }
