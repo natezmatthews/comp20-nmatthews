@@ -87,7 +87,7 @@
 				console.log("Registered click");
 				infowindow.close();	
 				infowindow.setContent(marker.title);
-				infowindow.open(map, marker);
+				infowindow.open(map, this);
 			});
 			console.log("Added listener");
 		}
@@ -115,11 +115,10 @@
 					});
 					marker.setMap(map);
 
-					google.maps.event.addListener(marker, 'click', function() {
-						console.log(person['login']);	
+					google.maps.event.addListener(marker, 'click', function() {	
 						infowindow.close();
-						infowindow.setContent(person['login']);
-						infowindow.open(map, marker);
+						infowindow.setContent(marker.title);
+						infowindow.open(map, this);
 					});
 				}
 			}
