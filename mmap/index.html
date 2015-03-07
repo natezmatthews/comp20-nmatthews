@@ -10,6 +10,7 @@
 	<script>
 		var myLat = 0;
 		var myLng = 0;
+		var login = "RobJohnson";
 		var request;
 		try {
 		  request = new XMLHttpRequest();
@@ -37,15 +38,17 @@
 					mapTypeId: google.maps.MapTypeId.ROADMAP
 				};
 		var map;
+		var pos;
+		var person;
 		var marker;
-		var infowindow = new google.maps.InfoWindow();
-		var places;
 		
 		function init()
 		{
 			map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 			console.log("Call before getMyLocation()");
 			getMyLocation();
+			console.log(myLat + " " + myLng);
+			postPosition();
 			console.log("Call after getMyLocation()");
 		}
 		
@@ -77,6 +80,37 @@
 				title: "Here I Am!"
 			});
 			marker.setMap(map);
+		}
+
+		function postPosition()
+		{
+			var param = ("login=" + login + "&lat=" + myLat + "&lng=" + myLng)
+			request.open("POST", param, true);
+			request.onreadystatechange = parseData;
+			request.send();
+		}
+
+		function parseData() {
+			if (request.readyState == 4 && request.status == 200) {
+				converted = JSON.parse(request.responseText);
+				for (i = 0; i < converted.length; i++) {
+					person = converted[i];
+					pos = new google.maps.LatLng(person['lat'], person['lng']);
+					// Create a marker
+					marker = new google.maps.Marker({
+						position: pos,
+						title: person['login']
+					});
+					marker.setMap(map);
+				}
+			}
+			else if (request.readyState == 4 && request.status == 304){
+				alert("No data changed, move along");
+			}
+			else if (request.readyState == 4 && request.status == 404){
+				alert("Error: Content not found");
+			}
+		}
 		}
 	</script>
 	<link rel="stylesheet" href="style.css" type="text/css" />
