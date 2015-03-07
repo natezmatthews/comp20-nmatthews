@@ -38,6 +38,7 @@
 					mapTypeId: google.maps.MapTypeId.ROADMAP
 				};
 		var map;
+		var infowindow = new google.maps.InfoWindow();
 		var pos;
 		var person;
 		var marker;
@@ -79,6 +80,12 @@
 				title: "Here I Am!"
 			});
 			marker.setMap(map);
+
+			// Open info window on click of marker
+			google.maps.event.addListener(marker, 'click', function() {
+				infowindow.setContent(marker.title);
+				infowindow.open(map, marker);
+			});
 		}
 
 		function postPosition()
