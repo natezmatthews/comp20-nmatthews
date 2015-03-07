@@ -84,6 +84,7 @@
 			// Open info window on click of marker
 			console.log("About to add listener");
 			google.maps.event.addListener(marker, 'click', function() {
+				console.log("Registered click");	
 				infowindow.close();
 				infowindow.setContent(marker.title);
 				infowindow.open(map, marker);
