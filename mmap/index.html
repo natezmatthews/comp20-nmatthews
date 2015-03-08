@@ -42,6 +42,10 @@
 		var pos;
 		var person;
 		var marker;
+
+		Number.prototype.toRad = function() {
+   			return this * Math.PI / 180;
+		}
 		
 		function init()
 		{
@@ -139,10 +143,10 @@
 
 		function haversine(lat1, lng1, lat2, lng2) {
 			var R = 3963.1676; //Earth's radius in miles
-			var rlat1 = lat1.toRadians();
-			var rlat2 = lat2.toRadians();
-			var drlat = (lat2-lat1).toRadians();
-			var drlng = (lng2-lng1).toRadians();
+			var rlat1 = lat1.toRad();
+			var rlat2 = lat2.toRad();
+			var drlat = (lat2-lat1).toRad();
+			var drlng = (lng2-lng1).toRad();
 
 			var a = Math.sin(drlat/2) * Math.sin(drlat/2) +
 			        Math.cos(rlat1) * Math.cos(rlat2) *
