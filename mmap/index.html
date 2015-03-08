@@ -10,6 +10,7 @@
 	<script>
 		var myLat = 0;
 		var myLng = 0;
+		var login = "RobJohnson";
 		var request;
 		try {
 		  request = new XMLHttpRequest();
@@ -37,31 +38,33 @@
 					mapTypeId: google.maps.MapTypeId.ROADMAP
 				};
 		var map;
-		var marker;
 		var infowindow = new google.maps.InfoWindow();
-		var places;
+		var pos;
+		var person;
+		var marker;
+
+		Number.prototype.toRad = function() {
+   			return this * Math.PI / 180;
+		}
 		
 		function init()
 		{
 			map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
-			console.log("Call before getMyLocation()");
 			getMyLocation();
-			console.log("Call after getMyLocation()");
 		}
 		
 		function getMyLocation() {
-			console.log("In getMyLocation()");
 			if (navigator.geolocation) { // the navigator.geolocation object is supported on your browser
 				navigator.geolocation.getCurrentPosition(function(position) {
 					myLat = position.coords.latitude;
 					myLng = position.coords.longitude;
 					renderMap();
+					postPosition();
 				});
 			}
 			else {
 				alert("Geolocation is not supported by your web browser.  What a shame!");
 			}
-			console.log("Leaving getMyLocation()");
 		}
 
 		function renderMap()
@@ -74,15 +77,83 @@
 			// Create a marker
 			marker = new google.maps.Marker({
 				position: me,
-				title: "Here I Am!"
+				title: "Here I Am!",
+				icon: 'left-shark.gif'
 			});
 			marker.setMap(map);
+
+			// Open info window on click of marker
+			google.maps.event.addListener(marker, 'click', function() {
+				infowindow.close();	
+				infowindow.setContent(this.title);
+				infowindow.open(map, this);
+			});
 		}
+
+		function postPosition()
+		{
+			var url = "https://secret-about-box.herokuapp.com/sendLocation"
+			var param = ("login=" + login + "&lat=" + myLat + "&lng=" + myLng)
+			request.open("POST", url, true);
+			request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			request.onreadystatechange = parseData;
+			request.send(param);
+		}
+
+		function parseData() {
+			if (request.readyState == 4 && request.status == 200) {
+				converted = JSON.parse(request.responseText);
+				if ( (typeof converted === "undefined") 
+						|| ("error" in converted)) {
+					alert("Error: Something wrong with the sent data");
+				}
+				for (i = 0; i < converted.length; i++) {
+					person = converted[i];
+					pos = new google.maps.LatLng(person['lat'], person['lng']);
+					dist = haversine(myLat, myLng, person['lat'], person['lng']);
+					// Create a marker
+					marker = new google.maps.Marker({
+						position: pos,
+						title: "<p>" + person['login'] + "</p>" +
+							   	"<p>" + dist + "</p>"
+					});
+					marker.setMap(map);
+
+					google.maps.event.addListener(marker, 'click', function() {	
+						infowindow.close();
+						infowindow.setContent(this.title);
+						infowindow.open(map, this);
+					});
+				}
+			}
+			else if (request.readyState == 4 && request.status == 304){
+				alert("No data changed, move along");
+			}
+			else if (request.readyState == 4 && request.status == 404){
+				alert("Error: Content not found");
+			}
+		}
+
+		function haversine(lat1, lng1, lat2, lng2) {
+			var R = 3963.1676; //Earth's radius in miles
+			var rlat1 = lat1.toRad();
+			var rlat2 = lat2.toRad();
+			var drlat = (lat2-lat1).toRad();
+			var drlng = (lng2-lng1).toRad();
+
+			var a = Math.sin(drlat/2) * Math.sin(drlat/2) +
+			        Math.cos(rlat1) * Math.cos(rlat2) *
+			        Math.sin(drlng/2) * Math.sin(drlng/2);
+			var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+			return (R * c);
+		}
+
 	</script>
 	<link rel="stylesheet" href="style.css" type="text/css" />
 </head>
 
-<body onload="initialize()">
+<body onload="init()">
 	<div id="map_canvas" style="width:100%; height:100%"></div>
 </body>
 
