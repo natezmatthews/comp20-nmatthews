@@ -105,6 +105,9 @@
 		function parseData() {
 			if (request.readyState == 4 && request.status == 200) {
 				converted = JSON.parse(request.responseText);
+				if (converted[0]['error']) {
+					alert("Error: Something wrong with the sent data");
+				}
 				for (i = 0; i < converted.length; i++) {
 					person = converted[i];
 					pos = new google.maps.LatLng(person['lat'], person['lng']);
