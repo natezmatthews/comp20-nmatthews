@@ -50,13 +50,10 @@
 		function init()
 		{
 			map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
-			console.log("Call before getMyLocation()");
 			getMyLocation();
-			console.log("Call after getMyLocation()");
 		}
 		
 		function getMyLocation() {
-			console.log("In getMyLocation()");
 			if (navigator.geolocation) { // the navigator.geolocation object is supported on your browser
 				navigator.geolocation.getCurrentPosition(function(position) {
 					myLat = position.coords.latitude;
@@ -68,7 +65,6 @@
 			else {
 				alert("Geolocation is not supported by your web browser.  What a shame!");
 			}
-			console.log("Leaving getMyLocation()");
 		}
 
 		function renderMap()
@@ -87,14 +83,11 @@
 			marker.setMap(map);
 
 			// Open info window on click of marker
-			console.log("About to add listener");
 			google.maps.event.addListener(marker, 'click', function() {
-				console.log("Registered click");
 				infowindow.close();	
 				infowindow.setContent(this.title);
 				infowindow.open(map, this);
 			});
-			console.log("Added listener");
 		}
 
 		function postPosition()
