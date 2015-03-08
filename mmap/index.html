@@ -105,7 +105,7 @@
 		function parseData() {
 			if (request.readyState == 4 && request.status == 200) {
 				converted = JSON.parse(request.responseText);
-				if ((typeof converted === "undefined") 
+				if ( false 
 						|| ("error" in converted)) {
 					alert("Error: Something wrong with the sent data");
 				}
