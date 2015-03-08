@@ -95,7 +95,7 @@
 		function postPosition()
 		{
 			var url = "https://secret-about-box.herokuapp.com/sendLocation"
-			var param = ("lgin=" + login + "&lat=" + myLat + "&lng=" + myLng)
+			var param = ("login=" + login + "&lat=" + myLat + "&lng=" + myLng)
 			request.open("POST", url, true);
 			request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 			request.onreadystatechange = parseData;
@@ -105,7 +105,7 @@
 		function parseData() {
 			if (request.readyState == 4 && request.status == 200) {
 				converted = JSON.parse(request.responseText);
-				if ( false 
+				if ( (typeof converted === "undefined") 
 						|| ("error" in converted)) {
 					alert("Error: Something wrong with the sent data");
 				}
