@@ -113,10 +113,12 @@
 				for (i = 0; i < converted.length; i++) {
 					person = converted[i];
 					pos = new google.maps.LatLng(person['lat'], person['lng']);
+					dist = haversine(myLat, myLng, person['lat'], person['lng']);
 					// Create a marker
 					marker = new google.maps.Marker({
 						position: pos,
-						title: person['login']
+						title: "<p>" + person['login'] + "</p>" +
+							   	"<p>" + dist + "</p>"
 					});
 					marker.setMap(map);
 
@@ -134,6 +136,22 @@
 				alert("Error: Content not found");
 			}
 		}
+
+		function haversine(lat1, lng1, lat2, lng2) {
+			var R = 3963.1676; //Earth's radius in miles
+			var rlat1 = lat1.toRadians();
+			var rlat2 = lat2.toRadians();
+			var drlat = (lat2-lat1).toRadians();
+			var drlng = (lng2-lng1).toRadians();
+
+			var a = Math.sin(drlat/2) * Math.sin(drlat/2) +
+			        Math.cos(rlat1) * Math.cos(rlat2) *
+			        Math.sin(drlng/2) * Math.sin(drlng/2);
+			var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+			return (R * c);
+		}
+
 	</script>
 	<link rel="stylesheet" href="style.css" type="text/css" />
 </head>
