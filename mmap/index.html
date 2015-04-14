@@ -94,7 +94,7 @@
 
 		function postPosition()
 		{
-			var url = "https://whispering-plateau-7629.herokuapp.com"
+			var url = "https://whispering-plateau-7629.herokuapp.com/sendLocation"
 			var param = ("login=" + login + "&lat=" + myLat + "&lng=" + myLng)
 			request.open("POST", url, true);
 			request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
