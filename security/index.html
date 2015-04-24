@@ -1,0 +1,103 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Marauder's Map Security Report</title>
+    <link rel="stylesheet" type="text/css" href="style.css"></link>
+</head>
+<body>
+<h1>Security Assessment Alex King's Marauder's Map and Server</h1>
+
+<p>Author: <a href="http://www.github.com/natezmatthews">Nate Matthews</a>, 4/23/2015</p>
+
+<h2>Introduction</h2>
+
+<p>The Marauder's Map, according to the specifications of the <a href="http://tuftsdev.github.io/WebProgramming/assignments/a2.html">assignment</a> that Alex built it for, does two things: 1. Retrieves your current location and sends your current location to a datastore that I created, and 2. Retrieves and displays the locations of people in the class on the map. This location information is stored in a database by a server. I have been hired to asses the security of both the map application and the server.</p>
+
+<p></p>
+
+<h2>Methodology</h2>
+
+<p>I began with a black box method of simply attacking the products themselves, then moved on to looking at the code provided to me. To attack the server, I used my browser and curl.</p>
+
+<h2>Abstract of Findings</h2>
+
+<p>All my suggestions have a common theme, which is that the application and server are too trusting of the user inputs, allowing users to input potentially harmful data. In the least worst cases, these sorts of vulnerabilities might simply make the product run slow or crash. In other cases however, such as with script injection, these vulnerabilities can pose a serious security threat by giving a user control over other people's computers.</p>
+
+<h2>Issues Found</h2>
+
+<ol>
+<li><p><strong>Cross-Site Scripting</strong></p>
+
+<ul>
+<li>Affects GET Root directory API</li>
+<li><span class="high">High</span>: This vulnerabiltiy should cause other websites to no longer trust this server's data, as they never know what script could be injected into their pages they load from the server.</li>
+<li>The server does not have any method that removes script from the data input into the database or that blocks it from being input. On the other end, the GET API serves the data from the database without checking it. This leaves the client vulnerable.</li>
+<li>As a demonstration of this vulnerability, I posted the following data to the server using curl: <code>$curl --data "login='&lt;script&gt;alert();&lt;/script&gt;&lat=0&lng=0" https://immense-ravine-3987.herokuapp.com/sendLocation -o output.txt</code>
+<table class="galleryTable">
+<tr><td><img src="img/XSS_Success.png" alt="XSS_Success" title="Injected javascript alert activating" /></td></tr>
+</table>
+<li>This issue can be resolved by checking for dangerous characters such as &gt; and &lt; (perhaps using regex), and then either encoding them, removing them from the data, or discarding the data entirely. This could be done as the data is coming in, or as it is being sent out.</li>
+</ul></li>
+<li><p><strong>Server stores NaN values when provided latitude and longitude values are not numbers</strong></p>
+
+<ul>
+<li>Affects the sendLocation POST API</li>
+<li><span class="mod">Moderate</span>: this vulnerability is not a threat to the server nor the database, but could cause problems for a client using the server if the client is relying on receiving valid latitude and longitude values and does not check for validity itself.</li>
+<li>The first type of erroneous latitude and longitude values the server stores is javascript NaNs (Not a Number values). The server <em>does</em> send an error if the values it received are not numbers (see line 6 of the code), but it then goes on to still save the values whether or not they are NaNs (lines 13 and 14).
+<pre><code>1     var post_login = request.body.login;
+2     var post_lat   = parseFloat(request.body.lat);
+3     var post_lng   = parseFloat(request.body.lng);
+4     // Ensure numeric latitude and longitude
+5     if (isNaN(post_lat) || isNaN(post_lng)) {
+6     	response.send({"error":"Whoops, something is wrong with your data!"});
+7     }
+8   
+9     var d = new Date();
+10  
+11    var toInsert = {
+12      "login": post_login,
+13      "lat": post_lat,
+14      "lng": post_lng,
+15      "created_at": d.toISOString()
+16    };</code></pre>
+</li>
+<li>As a demonstration of this vulnerability, I submitted non-number latitude and longitude values to the server using curl as follows: <code>curl --data "login=nate&lat=badlat&lng=badlng" https://immense-ravine-3987.herokuapp.com/sendLocation</code></li>
+<li>These NaN values are later sent to the client by the GET URI, as seen in the image below:
+<table class="galleryTable">
+<tr><td><img src="img/NanValues.png" alt="API displays NaNs" title="The GET API returns data with NaNs" /></td></tr>
+</table></li>
+<li>These null values later cause the marauder's map to throw a JavaScript error:
+<table class="galleryTable">
+<tr><td><img src="img/JavaScriptError.png" alt="JavaScriptError" title="The display of the JavaScript error in the console." /></td>
+<td><img src="img/SourceOfError.png" alt="SourceOfError" title="The JavaScript source code at the indicated line." /></td></tr>
+</table>
+</li>
+<li>The solution for this is very simple: add a "return" right below line 6 of the above code, so that the NaNs are not saved.</li>
+</ul></li>
+
+<li><p><strong>Server stores and serves latitude and longitude values out of valid range</strong></p>
+
+<ul>
+<li>Affects the sendLocation POST API</li>
+<li><span class="mod">Moderate</span>: this vulnerability is not a threat to the server nor the database, but could cause problems for a client by crashing their code or confusing them</li>
+<li>The second type of erroneous latitude and longitude values the server stores is latitude and longitude values outside of the range of latitude and longitude values found on earth. These values will be no use to the client, or worse, could crash their code.</li>
+<li>As a demonstration of this vulnerability, I submitted the following latitude and longitude to the server using curl: <code>curl --data "login=badLatLng&lat=100.3&lng=182.6" https://immense-ravine-3987.herokuapp.com/sendLocation</code></li>
+<li>These invalid values are later sent to the client by the GET URI, as seen in the image below:
+<table class="galleryTable">
+<tr><td><img src="img/ExtraTerrestrialValues.png" alt="API accepts bad Lat & Lng value" title="The GET API returns data with Lats and Lngs that don't exist on earth" /></td></tr>
+</table></li>
+<li>This issue could be resolved with a simple check of the values to see if they are within bounds, like this:
+<pre><code>if ((abs(post_lat) &gt; 90) || (abs(post_lat) &gt; 180)) {
+	response.send({"error":"Latitude must be between -90 and 90, and longitude must be between -180 and 180."});
+}
+</code></pre>
+This could be inserted at line 8 of the displayed code from the previous vulnerability.</li>
+</ul></li>
+</ol>
+
+<h2>Conclusion</h2>
+
+<p>Once again, the main issue is that these products are too trusting of user input. Besides adding the checks suggested above (for dangerous characters, for non-number inputs, for out-of-bounds inputs), Alex should consider imposing even more restrictions on user input, such as restrictions on the size of inputs, and frequency of inputs (to prevent a denial-of-service type attack where a user tries to overwhelm the server). I would implement such changes for a couple of meal swipes at Dewick.</p>
+</body>
+</html>
